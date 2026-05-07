@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e3c72">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Absen PKH">
+    <title>Absen Digital P2K2 PKH</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f0fe;
+            margin: 0;
+            padding: 15px;
+        }
+        .app-container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .header h1 { margin: 0; font-size: 1.5rem; }
+        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.9rem; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+        }
+        .flex-group { flex: 1; min-width: 170px; }
+        .flex-group label {
+            display: block;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+        select, input, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            background: white;
+            font-family: inherit;
+        }
+        textarea { resize: vertical; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .btn-primary { background: #2a5298; color: white; }
+        .btn-success { background: #2e7d32; color: white; }
+        .btn-warning { background: #ff8f00; color: white; }
+        .btn-danger { background: #c62828; color: white; }
+        .btn-dev { background: #e65100; color: white; }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .summary {
+            background: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            font-weight: bold;
+        }
+        .table-wrapper { overflow-x: auto; background: white; border-radius: 12px; margin-bottom:20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
+        th { background: #2a5298; color: white; padding: 10px 8px; text-align: center; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        .hadir-btn, .tidak-btn {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 0 2px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+        .hadir-btn { background: #4caf50; }
+        .tidak-btn { background: #f44336; }
+        .status-hadir { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 20px; display: inline-block; }
+        .status-tidak { background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 20px; display: inline-block; }
+        .alasan-input { width: 140px; padding: 4px; border-radius: 6px; border: 1px solid #ccc; font-size: 11px; }
+        .pilih-pengetahuan { width: 100%; padding: 5px; border-radius: 6px; border: 1px solid #ccc; font-size: 11px; background: white; }
+        .password-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .password-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+        }
+        .dev-panel {
+            display: none;
+            margin-top: 20px;
+            border-top: 2px solid #ff8f00;
+            padding-top: 20px;
+        }
+        .dev-panel.show { display: block; }
+        .dev-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .dev-left {
+            flex: 1;
+            min-width: 280px;
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 12px;
+        }
+        .dev-right {
+            flex: 2;
+            min-width: 300px;
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 12px;
+        }
+        .kelompok-list { margin-bottom: 15px; max-height: 300px; overflow-y: auto; }
+        .kelompok-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .kelompok-item:hover { background: #e0e0e0; }
+        .kelompok-item.active { background: #cce5ff; font-weight: bold; border-left: 3px solid #2a5298; }
+        .kelompok-name { flex: 1; }
+        .kelompok-actions button { margin-left: 6px; padding: 2px 8px; font-size: 0.75rem; }
+        .kpm-list { margin-top: 10px; max-height: 300px; overflow-y: auto; }
+        .kpm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+        .modal-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+        hr { margin: 15px 0; }
+        footer { text-align: center; margin-top: 20px; font-size: 12px; color: #555; }
+        @media (max-width: 700px) {
+            .alasan-input, .pilih-pengetahuan { width: 100px; font-size: 10px; }
+            th, td { font-size: 11px; padding: 5px 4px; }
+            .hadir-btn, .tidak-btn { padding: 3px 6px; font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header" id="headerInfo">
+        <h1>📋 Aplikasi Absen Digital P2K2 PKH</h1>
+        <p id="headerSub">Desa Nglebeng, Kecamatan Panggul, Kabupaten Trenggalek | Pendamping: Sukron Hasim, S.Pd | NIP. 19900217 202521 1 047</p>
+    </div>
+    <!-- FORM UTAMA -->
+    <div class="card">
+        <div class="flex-row">
+            <div class="flex-group"><label>📌 Pilih Kelompok</label><select id="kelompokSelect"></select></div>
+            <div class="flex-group"><label>📅 Tanggal Pelaksanaan</label><input type="date" id="tanggalInput"></div>
+            <div class="flex-group"><label>📍 Tempat Pelaksanaan</label><input type="text" id="tempatInput" placeholder="ex: di rumah Ketua RT"></div>
+            <div class="flex-group"><button class="btn-primary" id="loadBtn">🔄 Muat Data</button></div>
+        </div>
+    </div>
+    <!-- UPLOAD BUKTI & TTD -->
+    <div class="card">
+        <div class="flex-row">
+            <div class="flex-group"><label>📸 Bukti Kegiatan (Foto)</label><input type="file" id="uploadBukti" accept="image/*" capture="environment"><div id="previewBukti"></div><button id="clearBuktiBtn" style="display:none;" class="btn-warning">Hapus Bukti</button></div>
+            <div class="flex-group"><label>✍️ Tanda Tangan Pendamping</label><input type="file" id="uploadTtd" accept="image/*"><div id="previewTtd"></div><button id="clearTtdBtn" style="display:none;" class="btn-warning">Hapus TTD</button></div>
+        </div>
+    </div>
+    <!-- TOOLBAR -->
+    <div class="card">
+        <div class="toolbar">
+            <div><button id="simpanBtn" class="btn-success">💾 Simpan Absen</button> <button id="resetBtn" class="btn-warning">🔄 Reset ke HADIR</button> <button id="devBtn" class="btn-dev">🔧 Menu Pengembang</button></div>
+            <div><label>📎 Export ke:</label> <select id="exportFormat"><option value="pdf">PDF (F4)</option><option value="word">Word (DOC)</option><option value="excel">Excel (CSV)</option></select> <button id="exportBtn" class="btn-primary">▶ Export Laporan</button></div>
+        </div>
+    </div>
+    <!-- SUMMARY -->
+    <div class="summary" id="summaryArea">📊 Total KPM: 0 | ✅ Hadir: 0 | ❌ Tidak: 0 | 📈 Persentase: 0%</div>
+    <!-- TABEL ABSEN -->
+    <div class="table-wrapper">
+        <table id="absenTable">
+            <thead>
+                <tr><th>No</th><th>Nama KPM</th><th>Kehadiran</th><th>Keterangan (Alasan Tidak Hadir)</th><th>Pengetahuan & Pemahaman</th><th>Aksi</th></tr>
+            </thead>
+            <tbody id="absenBody">
+                <tr><td colspan="6">Pilih kelompok, tanggal, lalu klik Muat Data</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MENU PENGEMBANG -->
+    <div id="devPanel" class="dev-panel card">
+        <h3 style="color:#e65100;">🔧 MENU PENGEMBANG - Manajemen Data & Kelompok</h3>
+        <div class="dev-layout">
+            <div class="dev-left">
+                <h4>⚙️ KONFIGURASI</h4>
+                <div class="flex-group"><label>🏷️ Nama Desa</label><input type="text" id="configDesa" placeholder="Desa Nglebeng"></div>
+                <div class="flex-group"><label>🏷️ Kecamatan</label><input type="text" id="configKecamatan" placeholder="Kecamatan Panggul"></div>
+                <div class="flex-group"><label>🏷️ Kabupaten</label><input type="text" id="configKabupaten" placeholder="Kabupaten Trenggalek"></div>
+                <div class="flex-group"><label>👤 Nama Pendamping</label><input type="text" id="configPendamping" placeholder="Sukron Hasim, S.Pd"></div>
+                <div class="flex-group"><label>🆔 NIP Pendamping</label><input type="text" id="configNip" placeholder="19900217 202521 1 047"></div>
+                <button id="saveConfigBtn" class="btn-success" style="margin-top:10px;">💾 Simpan Konfigurasi</button>
+                <hr>
+                <h4>📁 BACKUP & RESTORE MASTER</h4>
+                <button id="exportMasterBtn" class="btn-success" style="width:100%; margin-bottom:8px;">📎 Export Master (Excel CSV)</button>
+                <input type="file" id="importMasterFile" accept=".csv" style="display:none;">
+                <button id="importMasterBtn" class="btn-warning" style="width:100%; margin-bottom:8px;">📤 Import Master (Excel CSV)</button>
+                <hr>
+                <h4>🔄 RESET DATA</h4>
+                <select id="resetKelompokSelect" style="margin-bottom:8px;"></select>
+                <button id="resetKelompokBtn" class="btn-warning" style="width:100%; margin-bottom:5px;">Reset Kelompok ke Default</button>
+                <button id="resetSemuaBtn" class="btn-danger" style="width:100%;">Reset SEMUA Kelompok</button>
+                <hr>
+                <button id="lockDevBtn" class="btn-danger" style="width:100%;">🔒 Kunci Kembali & Tutup</button>
+            </div>
+            <div class="dev-right">
+                <h4>📁 KELOMPOK</h4>
+                <div id="kelompokListContainer" class="kelompok-list"></div>
+                <button id="tambahKelompokBtn" class="btn-success" style="margin-top:5px;">+ Tambah Kelompok</button>
+                <hr>
+                <div id="kpmPanel" style="display: none;">
+                    <h4>👥 ANGGOTA KELOMPOK: <span id="selectedKelompokNama"></span></h4>
+                    <div id="kpmListContainer" class="kpm-list"></div>
+                    <button id="tambahKPMBtn" class="btn-success" style="margin-top:10px;">+ Tambah KPM</button>
+                </div>
+            </div>
+        </div>
+        <div id="importMsg" style="margin-top:10px; display:none;" class="btn-success"></div>
+        <p style="font-size:11px; margin-top:15px;">⚠️ Perubahan langsung tersimpan. Password: <strong>sukronmakasih</strong></p>
+    </div>
+    <footer>© Aplikasi Absen Digital P2K2 PKH - Data tersimpan di browser</footer>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    // ==================== DATA DEFAULT (15 KELOMPOK) ====================
+    const defaultKelompokData = {
+        "Joketro 1": ["TUTIK","PUJI PURYANI","LILIK MISWANTI","BOIRAN","BIBIT","SNIYAH","SUKINI","SARDI","MARTINI","SUPINI","JEMIATUN","YANI","PAIMIN M","SITUN KHOLIPAH","SUMIATI","MISIRAH","PRIHATIN"],
+        "Joketro 2": ["SITI AMINAH","SRI WINARTI","PUJI ASTUTI","JUMITUN","SUPRIHATIN","AHMAT","SENEN","BONARI","SULASIH","POINEM","ERMAWATI","WONI","HARYANTO","WIIWIK FETIANA","ELA INDRIANI","MISKIYEM","KARIYEM","KATIJO"],
+        "Nglebeng 1": ["SUJIRAH","BONATIN","WAGINI","PAINI","SUNARTI","PAERAH","SITI RUKAYAH","SARINGATUN","PARMIATI","MUJIRAH","RENI WIDYANINGTYAS","SYAMSIYAH","JURIYANTO","MARYULIN","PONIYEM","MUDIATUN","JUWADI","SARMINI","SUMARLIN"],
+        "Nglebeng 2": ["ISMUNAH","IMAM MUKOTIP","RINAWATI","KUSNUL KOTIMAH","MUSRIPAH","JUMIYAH","SUPARMIN","PUJIATI","SUKARTI","WARSINAH","YULIATIN","SURATIN","KASIATUN","KARMINAH","SARMINI","INDI RESMAWATI","SULASTRI","WIWIK SHOLICATIROHMAH","ROBIYAH"],
+        "Nglumpang 1": ["RIKA SITI QOMAH","PURNAMANINGSIH","MISKINAH","YULAIKAH","SURIFAH","RAMINI","ANITA","MISKIYEM","SUMIYEM","BOIMAN","RINAWATI","WIWIK","MURYOTO","SUWARNI","TUKIYO","SURATMIN","PONIJEM","KATMINI","NANIK","PANIYEM","SOMIN"],
+        "Nglumpang 2": ["SUWARTI","SUSANTI","SRI MURTINI","ROFIK SUMEDI","HANDOYO","TUMI","PARTINI","RINI RAHMAWATI","SRIKANTUN","HARTATIK","GIYEM","LEBUH","KATNIYEM","JUMIYEM","TIWIATUN","GUNAWAN","SUKATMI","DWI WATINI","SOMIYEM","SOIKEM","MENIR","SARWIYAH","WAHYONO"],
+        "Salam 1": ["ROHMAD","NENI SUGIHARTI","TUMIRAH","MARTINI","TUMIYEM","SUWITRI AMINDIYAH","KATMIRAH","MISKILAH","MISIYEM","SARMINI","HARTATIK","SUPINI","KARMINEM","BEJO","LAMIYAH","PONIMIN","SULASTRI","KATINI","POINEM"],
+        "Salam 2": ["MUJIATI","SURIPAH","SAMIYEM","KATMI","WAHYUNI","TUMILAH","MISTINEM","TUTIK","JARIYAH","SURATI","SUSIANA","TINI","PARTINI","MISKILAH","MISRI","PAIYAH","YENI","PAINAH"],
+        "Salam 3": ["MISIYAH","PAIYEM","SUPATMI","BONIYAH","RUKILAH","DARWANTO","TALMI","SUMINI","TITIK PURWATI","PARTI","KATMI","ISNAWATI","SUNARTI","SITI ANDAYANI","SUNGKONO","KATMIYEM","SUWANTO","DARMAJI","TUKIRAN","SUWARTI"],
+        "Slorok 1": ["SUTIRAH","SAMSIYAH","PURWANTO","DWI RATNASARI","SUKATI","SUKAMTO","MISNGATIN","HARI AGUSTINI","SOILAH","MISKIYEM","NURUL ISTIQOMAH","BOYINAH","SRINGATIN","NUR KHASANAH","BITNGATIN","ROJIATUN","SRI MUKMINAH","SITI AMINAH"],
+        "Slorok 2": ["SUPARTINI","FARIDA","SITI HALIMAH","WINDI ASTUTIK","MURTINI","SUPINI","YENFI AYU TRISNA WATI","MURYATI","JAETUN","MISKIRAN","GUNAWAN","FITRI RIANTI","MISKILAH","RUBINGATUN","KATIJEM","LILIS IRAWATI","KIPTIYAH","SRI RAHAYU NINGSIH"],
+        "Slorok 3": ["MEGAWATI","KATIJEM","KATIYEM","SOILAH","ROINEM","KATMINAH","SANIYEM","SUWARNI","SOMIJAH","KATIYEM","LENI SETYOWATI","JAENAB","SUMIATUN","KAMIRAH","SITI UTAMI","SUYONO","BONIYAH","BOMINI"],
+        "Slorok 4": ["TARMIJATIN","SUMIYEM","SEPTI RAHAYU NINGSIH","MARSITIN","JEMIR","SOKINI","SITI FATONAH","SITI MARIYAM","KUWADI","ILYAS","MURYANI","SUDARTO","MUKINI","JALIYAH","NURKASANAH","MISKIYEM","SITI FATIMAH","SUWARJI","SUPINI","SUTINAH","BINTI ROSIDHAH"],
+        "Sukorejo 1": ["TUKIJAN","JUMIRAH","MISKINAH","SARWAN","SUTIYEM","MUSRIPAH","LASMINI","LULUK FATIMAH","KATMIRAH","JUMINEM","SUMENIK","WONEM","LISTIANA","SARWIYAH","SRI PUJIATUN"],
+        "Sukorejo 2": ["SATINI","MISNGATUN","YULIANI","YULIANI","JAMILAH","SOIJAH","SRI UTAMI","TUTIK","JUMIATIN","SAMINEM","MISKIRAH","PAIKAN","SOIYAH","TASMI","YUNIARSIH","MUSIFAH","WINDA DWININGRUM","MISKIYEM","JIMAH"]
+    };
+    const defaultConfig = {
+        desa: "Desa Nglebeng", kecamatan: "Kecamatan Panggul", kabupaten: "Kabupaten Trenggalek",
+        pendamping: "Sukron Hasim, S.Pd", nip: "19900217 202521 1 047"
+    };
+
+    let kelompokData = {};
+    let config = {};
+    let absenState = {}; // { "nama": { status, alasan, pengetahuan } }
+    let buktiBase64 = "", ttdBase64 = "";
+    let currentKelompok = "Joketro 1", currentTanggal = "", currentTempat = "";
+    let devUnlocked = false;
+    let selectedKelompokForDev = null;
+
+    // STORAGE
+    function loadKelompokData() {
+        const saved = localStorage.getItem("p2k2_kelompokData");
+        if (saved) { try { kelompokData = JSON.parse(saved); } catch(e) { kelompokData = JSON.parse(JSON.stringify(defaultKelompokData)); } }
+        else { kelompokData = JSON.parse(JSON.stringify(defaultKelompokData)); }
+        saveKelompokData();
+    }
+    function saveKelompokData() { localStorage.setItem("p2k2_kelompokData", JSON.stringify(kelompokData)); }
+    function loadConfig() {
+        const saved = localStorage.getItem("p2k2_config");
+        if (saved) { try { config = JSON.parse(saved); } catch(e) { config = { ...defaultConfig }; } }
+        else { config = { ...defaultConfig }; }
+        updateHeaderDisplay();
+        document.getElementById("configDesa").value = config.desa;
+        document.getElementById("configKecamatan").value = config.kecamatan;
+        document.getElementById("configKabupaten").value = config.kabupaten;
+        document.getElementById("configPendamping").value = config.pendamping;
+        document.getElementById("configNip").value = config.nip;
+    }
+    function saveConfig() {
+        config.desa = document.getElementById("configDesa").value;
+        config.kecamatan = document.getElementById("configKecamatan").value;
+        config.kabupaten = document.getElementById("configKabupaten").value;
+        config.pendamping = document.getElementById("configPendamping").value;
+        config.nip = document.getElementById("configNip").value;
+        localStorage.setItem("p2k2_config", JSON.stringify(config));
+        updateHeaderDisplay();
+        alert("Konfigurasi tersimpan!");
+    }
+    function updateHeaderDisplay() {
+        document.getElementById("headerSub").innerHTML = `${config.desa}, ${config.kecamatan}, ${config.kabupaten} | Pendamping: ${config.pendamping} | NIP. ${config.nip}`;
+    }
+    function getAbsenKey() { return `p2k2_absen_${currentKelompok}_${currentTanggal}`; }
+    function getUploadKey() { return `p2k2_upload_${currentKelompok}_${currentTanggal}`; }
+    function loadAbsenData() {
+        if (!currentTanggal) return;
+        const saved = localStorage.getItem(getAbsenKey());
+        if (saved) absenState = JSON.parse(saved);
+        else absenState = {};
+        const daftar = kelompokData[currentKelompok] || [];
+        daftar.forEach(n => {
+            if (!absenState[n]) absenState[n] = { status: "hadir", alasan: "", pengetahuan: "baik" };
+        });
+        Object.keys(absenState).forEach(n => { if (!daftar.includes(n)) delete absenState[n]; });
+        saveAbsenData();
+    }
+    function saveAbsenData() { if (currentTanggal) localStorage.setItem(getAbsenKey(), JSON.stringify(absenState)); }
+    function loadUploadData() {
+        const saved = localStorage.getItem(getUploadKey());
+        if (saved) { let d = JSON.parse(saved); buktiBase64 = d.bukti || ""; ttdBase64 = d.ttd || ""; } else { buktiBase64 = ""; ttdBase64 = ""; }
+        updatePreview();
+    }
+    function saveUploadData() { localStorage.setItem(getUploadKey(), JSON.stringify({ bukti: buktiBase64, ttd: ttdBase64 })); }
+    function updatePreview() {
+        const pb = document.getElementById("previewBukti");
+        if (buktiBase64) { pb.innerHTML = `<img src="${buktiBase64}" style="max-width:120px; max-height:80px;"><br>`; document.getElementById("clearBuktiBtn").style.display = "inline-block"; }
+        else { pb.innerHTML = ""; document.getElementById("clearBuktiBtn").style.display = "none"; }
+        const pt = document.getElementById("previewTtd");
+        if (ttdBase64) { pt.innerHTML = `<img src="${ttdBase64}" style="max-width:120px; max-height:60px;"><br>`; document.getElementById("clearTtdBtn").style.display = "inline-block"; }
+        else { pt.innerHTML = ""; document.getElementById("clearTtdBtn").style.display = "none"; }
+    }
+
+    // RENDER TABEL
+    function renderTable() {
+        const daftar = kelompokData[currentKelompok] || [];
+        if (!daftar.length) { document.getElementById("absenBody").innerHTML = '<tr><td colspan="6">Kelompok kosong</td></tr>'; updateSummary(); return; }
+        let html = '';
+        const pengetahuanOptions = [
+            { value: "kurang", label: "Kurang" },
+            { value: "baik", label: "Baik" },
+            { value: "sangat baik", label: "Sangat Baik" },
+            { value: "tidak dapat dinilai", label: "Tidak Dapat Dinilai" }
+        ];
+        daftar.forEach((nama, idx) => {
+            const state = absenState[nama] || { status: "hadir", alasan: "", pengetahuan: "baik" };
+            const statusClass = state.status === "hadir" ? "status-hadir" : "status-tidak";
+            const statusText = state.status === "hadir" ? "✅ HADIR" : "❌ TIDAK HADIR";
+            const alasanInput = state.status === "tidak"
+                ? `<input type="text" class="alasan-input" data-nama="${escapeHtml(nama)}" value="${escapeHtml(state.alasan)}" placeholder="isi alasan">`
+                : '-';
+            let selectHtml = `<select class="pilih-pengetahuan" data-nama="${escapeHtml(nama)}">`;
+            pengetahuanOptions.forEach(opt => {
+                const selected = (state.pengetahuan === opt.value) ? 'selected' : '';
+                selectHtml += `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
+            });
+            selectHtml += `</select>`;
+            html += `<tr>
+                <td style="text-align:center">${idx+1}</td>
+                <td>${escapeHtml(nama)}</td>
+                <td><span class="${statusClass}">${statusText}</span></td>
+                <td>${alasanInput}</td>
+                <td>${selectHtml}</td>
+                <td style="white-space: nowrap;">
+                    <button class="hadir-btn" data-nama="${escapeHtml(nama)}">HADIR</button>
+                    <button class="tidak-btn" data-nama="${escapeHtml(nama)}">TIDAK</button>
+                </td>
+            </tr>`;
+        });
+        document.getElementById("absenBody").innerHTML = html;
+        attachEvents();
+        updateSummary();
+    }
+    function attachEvents() {
+        document.querySelectorAll('.hadir-btn').forEach(btn => {
+            btn.onclick = () => {
+                const nama = btn.getAttribute('data-nama');
+                absenState[nama] = { ...absenState[nama], status: "hadir", alasan: "" };
+                saveAbsenData(); renderTable();
+            };
+        });
+        document.querySelectorAll('.tidak-btn').forEach(btn => {
+            btn.onclick = () => {
+                const nama = btn.getAttribute('data-nama');
+                let old = (absenState[nama] && absenState[nama].alasan) || "";
+                absenState[nama] = { ...absenState[nama], status: "tidak", alasan: old };
+                saveAbsenData(); renderTable();
+            };
+        });
+        document.querySelectorAll('.alasan-input').forEach(inp => {
+            inp.onchange = () => {
+                const nama = inp.getAttribute('data-nama');
+                if (absenState[nama]) absenState[nama].alasan = inp.value;
+                saveAbsenData();
+            };
+        });
+        document.querySelectorAll('.pilih-pengetahuan').forEach(sel => {
+            sel.onchange = () => {
+                const nama = sel.getAttribute('data-nama');
+                if (absenState[nama]) absenState[nama].pengetahuan = sel.value;
+                saveAbsenData();
+            };
+        });
+    }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    function updateSummary() {
+        const daftar = kelompokData[currentKelompok] || [];
+        let hadir = daftar.filter(n => (absenState[n]?.status || "hadir") === "hadir").length;
+        let tidak = daftar.length - hadir;
+        const persen = daftar.length ? Math.round(hadir/daftar.length*100) : 0;
+        document.getElementById("summaryArea").innerHTML = `📊 Total KPM: ${daftar.length} | ✅ Hadir: ${hadir} | ❌ Tidak: ${tidak} | 📈 Persentase: ${persen}%`;
+    }
+    function populateKelompokSelect() {
+        const sel = document.getElementById("kelompokSelect");
+        sel.innerHTML = "";
+        Object.keys(kelompokData).forEach(k => sel.appendChild(new Option(k, k)));
+        if (currentKelompok && kelompokData[currentKelompok]) sel.value = currentKelompok;
+        const resetSel = document.getElementById("resetKelompokSelect");
+        if (resetSel) {
+            resetSel.innerHTML = "";
+            Object.keys(kelompokData).forEach(k => resetSel.appendChild(new Option(k, k)));
+        }
+    }
+    function loadFromForm() {
+        currentKelompok = document.getElementById("kelompokSelect").value;
+        currentTanggal = document.getElementById("tanggalInput").value;
+        currentTempat = document.getElementById("tempatInput").value;
+        if (!currentTanggal) { alert("Pilih tanggal"); return false; }
+        loadAbsenData(); loadUploadData(); renderTable(); return true;
+    }
+    function resetAllHadir() {
+        if (!confirm(`Reset semua ke HADIR untuk ${currentKelompok} tanggal ${currentTanggal}?`)) return;
+        kelompokData[currentKelompok].forEach(n => { absenState[n] = { ...absenState[n], status: "hadir", alasan: "" }; });
+        saveAbsenData(); renderTable(); alert("Reset selesai");
+    }
+
+    // MENU PENGEMBANG (Manajemen Kelompok & KPM) - fungsi singkat
+    function renderKelompokList() {
+        const container = document.getElementById("kelompokListContainer");
+        if (!container) return;
+        container.innerHTML = "";
+        Object.keys(kelompokData).sort().forEach(kel => {
+            const div = document.createElement("div");
+            div.className = "kelompok-item" + (selectedKelompokForDev === kel ? " active" : "");
+            div.innerHTML = `<span class="kelompok-name">${escapeHtml(kel)}</span><div class="kelompok-actions"><button class="btn-danger btn-hapus-kelompok" data-kel="${escapeHtml(kel)}">Hapus</button></div>`;
+            div.querySelector(".kelompok-name").onclick = () => {
+                selectedKelompokForDev = kel;
+                renderKelompokList();
+                renderKPMList();
+                document.getElementById("kpmPanel").style.display = "block";
+                document.getElementById("selectedKelompokNama").innerText = kel;
+            };
+            div.querySelector(".btn-hapus-kelompok").onclick = (e) => {
+                e.stopPropagation();
+                if (confirm(`Hapus kelompok "${kel}"?`)) {
+                    delete kelompokData[kel];
+                    saveKelompokData();
+                    if (selectedKelompokForDev === kel) { selectedKelompokForDev = null; document.getElementById("kpmPanel").style.display = "none"; }
+                    renderKelompokList();
+                    populateKelompokSelect();
+                    if (currentKelompok === kel) { currentKelompok = Object.keys(kelompokData)[0] || ""; loadAbsenData(); loadUploadData(); renderTable(); }
+                    else { loadAbsenData(); renderTable(); }
+                }
+            };
+            container.appendChild(div);
+        });
+    }
+    function renderKPMList() {
+        const container = document.getElementById("kpmListContainer");
+        if (!container || !selectedKelompokForDev) return;
+        const kpmList = kelompokData[selectedKelompokForDev] || [];
+        container.innerHTML = "";
+        if (!kpmList.length) { container.innerHTML = "<p><em>Belum ada anggota.</em></p>"; return; }
+        kpmList.forEach((kpm, idx) => {
+            const div = document.createElement("div");
+            div.className = "kpm-item";
+            div.innerHTML = `<span>${idx+1}. ${escapeHtml(kpm)}</span><button class="btn-danger btn-hapus-kpm" data-kpm="${escapeHtml(kpm)}">Hapus</button>`;
+            div.querySelector(".btn-hapus-kpm").onclick = () => {
+                if (confirm(`Hapus KPM "${kpm}"?`)) {
+                    const index = kelompokData[selectedKelompokForDev].indexOf(kpm);
+                    if (index !== -1) kelompokData[selectedKelompokForDev].splice(index, 1);
+                    saveKelompokData();
+                    if (absenState[kpm]) delete absenState[kpm];
+                    renderKPMList();
+                    if (currentKelompok === selectedKelompokForDev) renderTable();
+                }
+            };
+            container.appendChild(div);
+        });
+    }
+    function showTambahKelompokModal() {
+        const modal = document.createElement("div");
+        modal.className = "modal-overlay";
+        modal.innerHTML = `<div class="modal-box"><h3>Tambah Kelompok Baru</h3><input type="text" id="newKelompokNameInput" placeholder="Nama kelompok"><div style="text-align:right; margin-top:10px;"><button id="modalCancel" class="btn-warning">Batal</button><button id="modalConfirm" class="btn-success">Simpan</button></div></div>`;
+        document.body.appendChild(modal);
+        const input = modal.querySelector("#newKelompokNameInput");
+        input.focus();
+        modal.querySelector("#modalConfirm").onclick = () => {
+            let nama = input.value.trim();
+            if (!nama) { alert("Nama tidak boleh kosong"); return; }
+            if (kelompokData[nama]) { alert("Sudah ada"); return; }
+            kelompokData[nama] = [];
+            saveKelompokData();
+            renderKelompokList();
+            populateKelompokSelect();
+            modal.remove();
+        };
+        modal.querySelector("#modalCancel").onclick = () => modal.remove();
+    }
+    function showTambahKPMOptions() {
+        if (!selectedKelompokForDev) { alert("Pilih kelompok dulu"); return; }
+        const modal = document.createElement("div");
+        modal.className = "modal-overlay";
+        modal.innerHTML = `<div class="modal-box"><h3>Tambah KPM ke "${selectedKelompokForDev}"</h3><div style="margin-bottom:10px;"><button id="tambahSatuanBtn" class="btn-primary">➕ Tambah Satuan</button><button id="tambahBanyakBtn" class="btn-primary" style="margin-left:10px;">📋 Tambah Banyak</button></div><div id="tambahFormArea"></div><div style="text-align:right; margin-top:15px;"><button id="modalTutup" class="btn-warning">Tutup</button></div></div>`;
+        document.body.appendChild(modal);
+        const area = modal.querySelector("#tambahFormArea");
+        modal.querySelector("#tambahSatuanBtn").onclick = () => {
+            area.innerHTML = `<input type="text" id="satuanKPM" placeholder="Nama KPM"><button id="simpanSatuan" class="btn-success" style="margin-top:5px;">Simpan</button>`;
+            modal.querySelector("#simpanSatuan").onclick = () => {
+                let nama = modal.querySelector("#satuanKPM").value.trim();
+                if (!nama) { alert("Nama kosong"); return; }
+                if (kelompokData[selectedKelompokForDev].includes(nama)) { alert("Sudah ada"); return; }
+                kelompokData[selectedKelompokForDev].push(nama);
+                saveKelompokData();
+                renderKPMList();
+                if (currentKelompok === selectedKelompokForDev) renderTable();
+                modal.remove();
+            };
+        };
+        modal.querySelector("#tambahBanyakBtn").onclick = () => {
+            area.innerHTML = `<textarea id="banyakKPM" rows="5" placeholder="Satu nama per baris"></textarea><button id="simpanBanyak" class="btn-success" style="margin-top:5px;">Proses</button>`;
+            modal.querySelector("#simpanBanyak").onclick = () => {
+                let text = modal.querySelector("#banyakKPM").value;
+                let lines = text.split(/\r?\n/);
+                let added = 0;
+                lines.forEach(line => {
+                    let nama = line.trim();
+                    if (nama && !kelompokData[selectedKelompokForDev].includes(nama)) {
+                        kelompokData[selectedKelompokForDev].push(nama);
+                        added++;
+                    }
+                });
+                if (added) {
+                    saveKelompokData();
+                    renderKPMList();
+                    if (currentKelompok === selectedKelompokForDev) renderTable();
+                    alert(`${added} KPM ditambahkan.`);
+                    modal.remove();
+                } else { alert("Tidak ada nama baru"); }
+            };
+        };
+        modal.querySelector("#modalTutup").onclick = () => modal.remove();
+    }
+
+    // EXPORT MASTER CSV & RESET
+    function exportMasterCSV() {
+        let rows = ["#KONFIGURASI", "desa,kecamatan,kabupaten,pendamping,nip", `"${config.desa}","${config.kecamatan}","${config.kabupaten}","${config.pendamping}","${config.nip}"`, "#KELOMPOK", "Nama Kelompok,Nama KPM"];
+        for (const [kel, daftar] of Object.entries(kelompokData))
+            for (const kpm of daftar) rows.push(`"${kel}","${kpm}"`);
+        downloadFile(rows.join("\n"), `master_p2k2_${new Date().toISOString().slice(0,19)}.csv`, "text/csv;charset=utf-8;");
+    }
+    function importMasterCSV(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const lines = e.target.result.split(/\r?\n/);
+                let mode = null, newConfig = null, newKelompok = {};
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line) continue;
+                    if (line === "#KONFIGURASI") { mode = "config"; continue; }
+                    if (line === "#KELOMPOK") { mode = "kelompok"; continue; }
+                    if (mode === "config") {
+                        if (line.startsWith("desa")) continue;
+                        let parts = line.split(',').map(s => s.trim());
+                        if (parts.length >= 5) newConfig = { desa: parts[0].replace(/^"|"$/g,''), kecamatan: parts[1].replace(/^"|"$/g,''), kabupaten: parts[2].replace(/^"|"$/g,''), pendamping: parts[3].replace(/^"|"$/g,''), nip: parts[4].replace(/^"|"$/g,'') };
+                        mode = null;
+                    } else if (mode === "kelompok") {
+                        if (line.startsWith("Nama Kelompok")) continue;
+                        let parts = line.split(',').map(s => s.trim());
+                        if (parts.length >= 2) {
+                            let kel = parts[0].replace(/^"|"$/g,''), kpm = parts[1].replace(/^"|"$/g,'');
+                            if (kel && kpm) { if (!newKelompok[kel]) newKelompok[kel] = []; if (!newKelompok[kel].includes(kpm)) newKelompok[kel].push(kpm); }
+                        }
+                    }
+                }
+                if (newConfig) { config = newConfig; localStorage.setItem("p2k2_config", JSON.stringify(config)); updateHeaderDisplay(); }
+                if (Object.keys(newKelompok).length) {
+                    kelompokData = newKelompok; saveKelompokData();
+                    for (let i=0; i<localStorage.length; i++) { let k = localStorage.key(i); if (k.startsWith("p2k2_absen_") || k.startsWith("p2k2_upload_")) localStorage.removeItem(k); }
+                    populateKelompokSelect();
+                    if (!kelompokData[currentKelompok]) currentKelompok = Object.keys(kelompokData)[0] || "";
+                    document.getElementById("kelompokSelect").value = currentKelompok;
+                    loadAbsenData(); loadUploadData(); renderTable();
+                    renderKelompokList();
+                    if (selectedKelompokForDev && kelompokData[selectedKelompokForDev]) renderKPMList();
+                    showMsg("✅ Import master CSV berhasil!");
+                } else showMsg("⚠️ Tidak ada data kelompok.");
+            } catch(err) { alert("Gagal import CSV: "+err.message); }
+        };
+        reader.readAsText(file, "UTF-8");
+    }
+    function resetKelompokToDefault() {
+        let kel = document.getElementById("resetKelompokSelect").value;
+        if (!confirm(`Reset "${kel}" ke default?`)) return;
+        if (defaultKelompokData[kel]) kelompokData[kel] = [...defaultKelompokData[kel]];
+        else return;
+        for (let i=0;i<localStorage.length;i++) { let k = localStorage.key(i); if (k.includes(`p2k2_absen_${kel}_`) || k.includes(`p2k2_upload_${kel}_`)) localStorage.removeItem(k); }
+        saveKelompokData();
+        populateKelompokSelect();
+        if (currentKelompok === kel) { loadAbsenData(); loadUploadData(); renderTable(); }
+        if (selectedKelompokForDev === kel) renderKPMList();
+        alert(`Kelompok "${kel}" direset.`);
+    }
+    function resetSemuaKelompok() {
+        if (!confirm("RESET SEMUA? Semua data absen hilang!")) return;
+        kelompokData = JSON.parse(JSON.stringify(defaultKelompokData));
+        saveKelompokData();
+        for (let i=0;i<localStorage.length;i++) { let k = localStorage.key(i); if (k.startsWith("p2k2_absen_") || k.startsWith("p2k2_upload_")) localStorage.removeItem(k); }
+        populateKelompokSelect();
+        currentKelompok = Object.keys(kelompokData)[0] || "Joketro 1";
+        document.getElementById("kelompokSelect").value = currentKelompok;
+        loadAbsenData(); loadUploadData(); renderTable();
+        renderKelompokList();
+        if (selectedKelompokForDev && kelompokData[selectedKelompokForDev]) renderKPMList();
+        alert("Semua kelompok direset.");
+    }
+
+    // EXPORT LAPORAN (PDF, Word, Excel) dengan kolom pengetahuan
+    function generateReportHTML() {
+        let daftar = kelompokData[currentKelompok] || [];
+        let hadir = daftar.filter(n => (absenState[n]?.status || "hadir") === "hadir").length;
+        let tidak = daftar.length - hadir;
+        let rows = '';
+        daftar.forEach((n, i) => {
+            const s = absenState[n] || { status: "hadir", alasan: "", pengetahuan: "baik" };
+            let pengetahuan = { kurang:"Kurang", baik:"Baik", "sangat baik":"Sangat Baik", "tidak dapat dinilai":"Tidak Dapat Dinilai" }[s.pengetahuan] || "Baik";
+            rows += `<tr><td style="border:1px solid black;padding:6px;text-align:center">${i+1}</td><td style="border:1px solid black;padding:6px">${escapeHtml(n)}</td><td style="border:1px solid black;padding:6px;text-align:center">${s.status === "hadir" ? "HADIR" : "TIDAK HADIR"}</td><td style="border:1px solid black;padding:6px">${s.status === "tidak" ? (s.alasan||"-") : "-"}</td><td style="border:1px solid black;padding:6px;text-align:center">${pengetahuan}</td></tr>`;
+        });
+        let buktiImg = buktiBase64 ? `<div style="margin-top:20px;"><strong>LAMPIRAN BUKTI</strong><br><div style="width:12.7cm;height:8.9cm;border:1px solid #999;"><img src="${buktiBase64}" style="width:100%;height:100%;object-fit:contain;"></div></div>` : "";
+        let ttdImg = ttdBase64 ? `<img src="${ttdBase64}" style="width:4cm;height:3cm;"><br>` : "";
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Absen ${currentKelompok}</title><style>body{font-family:'Times New Roman'; margin:1.5cm;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid black;padding:6px;}</style></head><body>
+        <h2 style="text-align:center">DAFTAR HADIR KELUARGA PENERIMA MANFAAT (KPM)</h2>
+        <h3 style="text-align:center">PKH ${config.desa}, ${config.kecamatan}, ${config.kabupaten}<br>TAHUN 2026</h3>
+        <p><strong>KELOMPOK ${currentKelompok}</strong><br>Tanggal: ${currentTanggal}<br>Tempat: ${currentTempat}<br>Jumlah Hadir: ${hadir} | Tidak Hadir: ${tidak}</p>
+        <table><thead><tr><th>NO</th><th>NAMA KPM</th><th>KEHADIRAN</th><th>KETERANGAN</th><th>PENGETAHUAN & PEMAHAMAN</th></tr></thead><tbody>${rows}</tbody></table>
+        ${buktiImg}
+        <div style="margin-top:40px; text-align:right">Panggul, ${currentTanggal}<br>ASN/PPPK Pendamping Sosial<br>${ttdImg}<strong>${config.pendamping}</strong><br>NIP. ${config.nip}</div>
+        </body></html>`;
+    }
+    function exportLaporan(format) {
+        if (!currentTanggal) { alert("Muat data dulu"); return; }
+        if (format === 'excel') {
+            let csv = convertToCSV();
+            downloadFile(csv, `absen_${currentKelompok}_${currentTanggal}.csv`, "text/csv;charset=utf-8;");
+        } else if (format === 'pdf') {
+            let el = document.createElement('div'); el.innerHTML = generateReportHTML(); document.body.appendChild(el);
+            html2pdf().set({ margin: [0.8,0.8,0.8,0.8], filename: `absen_${currentKelompok}_${currentTanggal}.pdf`, jsPDF: { unit: 'cm', format: 'f4', orientation: 'portrait' } }).from(el).save().then(() => document.body.removeChild(el));
+        } else if (format === 'word') {
+            downloadFile(generateReportHTML(), `absen_${currentKelompok}_${currentTanggal}.doc`, "application/msword");
+        }
+    }
+    function convertToCSV() {
+        let daftar = kelompokData[currentKelompok] || [];
+        let rows = [["DAFTAR HADIR KELUARGA PENERIMA MANFAAT (KPM)"], [`PKH ${config.desa}, ${config.kecamatan}, ${config.kabupaten}`], [`KELOMPOK ${currentKelompok}`], [`Tanggal: ${currentTanggal}`], [`Tempat: ${currentTempat}`], []];
+        rows.push(["NO","NAMA KPM","KEHADIRAN","KETERANGAN","PENGETAHUAN & PEMAHAMAN"]);
+        daftar.forEach((n,i) => {
+            const s = absenState[n] || { status: "hadir", alasan: "", pengetahuan: "baik" };
+            let pengetahuan = { kurang:"Kurang", baik:"Baik", "sangat baik":"Sangat Baik", "tidak dapat dinilai":"Tidak Dapat Dinilai" }[s.pengetahuan] || "Baik";
+            rows.push([i+1, n, s.status === "hadir" ? "HADIR" : "TIDAK HADIR", s.status === "tidak" ? (s.alasan||"-") : "-", pengetahuan]);
+        });
+        let hadir = daftar.filter(n => (absenState[n]?.status || "hadir") === "hadir").length;
+        rows.push([], [`Jumlah Hadir: ${hadir}`, `Jumlah Tidak Hadir: ${daftar.length - hadir}`], []);
+        rows.push([`Panggul, ${currentTanggal}`], ["ASN/PPPK Pendamping Sosial"], [config.pendamping], [`NIP. ${config.nip}`]);
+        return rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+    }
+    function downloadFile(content, filename, mime) {
+        const blob = new Blob(["\uFEFF" + content], {type: mime});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href);
+    }
+    function showMsg(msg) { let el = document.getElementById("importMsg"); el.innerHTML = msg; el.style.display = "block"; setTimeout(() => el.style.display = "none", 3000); }
+
+    // PASSWORD & TOGGLE MENU PENGEMBANG
+    function toggleDevMenu() {
+        if (!devUnlocked) showPasswordOverlay();
+        else document.getElementById("devPanel").classList.toggle("show");
+    }
+    function showPasswordOverlay() {
+        let ov = document.createElement('div'); ov.className = 'password-overlay';
+        ov.innerHTML = `<div class="password-box"><h3>🔒 Menu Pengembang</h3><input type="password" id="passInput" placeholder="Password"><br><br><button id="passSubmit">Buka</button><button id="passCancel">Batal</button><div id="passErr" style="color:red;margin-top:8px;"></div></div>`;
+        document.body.appendChild(ov);
+        ov.querySelector('#passSubmit').onclick = () => {
+            if (ov.querySelector('#passInput').value === "sukronmakasih") {
+                devUnlocked = true; ov.remove();
+                document.getElementById("devPanel").classList.add("show");
+                renderKelompokList();
+                if (selectedKelompokForDev && kelompokData[selectedKelompokForDev]) { renderKPMList(); document.getElementById("kpmPanel").style.display = "block"; document.getElementById("selectedKelompokNama").innerText = selectedKelompokForDev; }
+                populateKelompokSelect();
+            } else ov.querySelector('#passErr').innerText = "Password salah!";
+        };
+        ov.querySelector('#passCancel').onclick = () => ov.remove();
+        ov.querySelector('#passInput').focus();
+    }
+    function lockDevMenu() { devUnlocked = false; document.getElementById("devPanel").classList.remove("show"); alert("Menu Pengembang terkunci."); }
+
+    // EVENT LISTENERS
+    document.getElementById("uploadBukti").onchange = (e) => { if(e.target.files[0]){ let r=new FileReader(); r.onload=(ev)=>{ buktiBase64=ev.target.result; updatePreview(); saveUploadData(); }; r.readAsDataURL(e.target.files[0]); } };
+    document.getElementById("uploadTtd").onchange = (e) => { if(e.target.files[0]){ let r=new FileReader(); r.onload=(ev)=>{ ttdBase64=ev.target.result; updatePreview(); saveUploadData(); }; r.readAsDataURL(e.target.files[0]); } };
+    document.getElementById("clearBuktiBtn").onclick = () => { buktiBase64 = ""; document.getElementById("uploadBukti").value = ""; updatePreview(); saveUploadData(); };
+    document.getElementById("clearTtdBtn").onclick = () => { ttdBase64 = ""; document.getElementById("uploadTtd").value = ""; updatePreview(); saveUploadData(); };
+    document.getElementById("loadBtn").onclick = loadFromForm;
+    document.getElementById("simpanBtn").onclick = () => { saveAbsenData(); saveUploadData(); alert("Data tersimpan!"); };
+    document.getElementById("resetBtn").onclick = resetAllHadir;
+    document.getElementById("exportBtn").onclick = () => exportLaporan(document.getElementById("exportFormat").value);
+    document.getElementById("devBtn").onclick = toggleDevMenu;
+    document.getElementById("saveConfigBtn").onclick = saveConfig;
+    document.getElementById("lockDevBtn").onclick = lockDevMenu;
+    document.getElementById("exportMasterBtn").onclick = exportMasterCSV;
+    document.getElementById("importMasterBtn").onclick = () => document.getElementById("importMasterFile").click();
+    document.getElementById("importMasterFile").onchange = (e) => { if(e.target.files[0]) importMasterCSV(e.target.files[0]); e.target.value=""; };
+    document.getElementById("resetKelompokBtn").onclick = resetKelompokToDefault;
+    document.getElementById("resetSemuaBtn").onclick = resetSemuaKelompok;
+    document.getElementById("tambahKelompokBtn").onclick = showTambahKelompokModal;
+    document.getElementById("tambahKPMBtn").onclick = showTambahKPMOptions;
+
+    // INIT
+    loadKelompokData();
+    loadConfig();
+    populateKelompokSelect();
+    let today = new Date().toISOString().slice(0,10);
+    document.getElementById("tanggalInput").value = today;
+    document.getElementById("tempatInput").value = "di rumah Ketua Kelompok";
+    currentKelompok = "Joketro 1";
+    currentTanggal = today;
+    currentTempat = "di rumah Ketua Kelompok";
+    loadAbsenData();
+    loadUploadData();
+    renderTable();
+    if (Object.keys(kelompokData).length) selectedKelompokForDev = Object.keys(kelompokData)[0];
+</script>
+</body>
+</html>
